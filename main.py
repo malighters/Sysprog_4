@@ -1,5 +1,77 @@
 from collections import OrderedDict
+import networkx as nx
+import matplotlib.pyplot as plt
 
+class ASTNode:
+    def __init__(self, type, value=None):
+        self.type = type
+        self.value = type
+        self.children = []
+
+    def add_child(self, child):
+        self.children.append(child)
+
+# AST building function
+def build_ast(grammar, symbol, remaining_input):
+    node = ASTNode(symbol)
+    productions = grammar.get(symbol, [])
+
+    for production in productions:
+        current_node = node
+        current_input = remaining_input
+
+        for symbol in production:
+            if symbol.isupper():  # Non-terminal
+                child_node, consumed_input = build_ast(grammar, symbol, current_input)
+                current_node.children.append(child_node)
+                current_node = child_node
+                current_input = consumed_input
+            else:  # Terminal
+                if current_input.startswith(symbol):
+                    current_node.children.append(ASTNode(symbol, symbol))
+                    current_input = current_input[len(symbol):]
+                else:
+                    # Error handling, symbol in input does not match grammar
+                    break
+
+        # If we successfully matched a production, return the AST and the remaining input
+        else:
+            return node, current_input
+
+    # If no production matches, return the partial AST and the remaining input
+    return node, remaining_input
+
+# AST visualization function
+def visualize_ast(root):
+    graph = nx.DiGraph()
+    visualize_ast_recursive(graph, None, root)
+    pos = nx.spring_layout(graph)
+    labels = {node: data['label'] for node, data in graph.nodes(data=True)}
+    nx.draw(graph, pos, labels=labels, with_labels=True, node_size=3000, node_color="skyblue")
+    plt.title("Abstract Syntax Tree (AST)")
+    plt.show()
+
+# Recursive AST visualization function
+def visualize_ast_recursive(graph, parent_name, node, depth=1):
+    if isinstance(node, ASTNode):
+        node_name = f"{node.type}_{id(node)}"
+        graph.add_node(node_name, label=node.value)
+    elif isinstance(node, tuple):
+        node_name = f"{node[0]}_{id(node)}"
+        label = node[1] if len(node) > 1 else None
+        graph.add_node(node_name, label=label)
+    else:
+        node_name = f"unknown_{id(node)}"
+        graph.add_node(node_name, label=str(node))
+
+    if parent_name is not None:
+        graph.add_edge(parent_name, node_name)
+
+    if isinstance(node, (ASTNode, tuple)) and hasattr(node, 'children'):
+        for child in node.children if isinstance(node, ASTNode) else node[2]:
+            visualize_ast_recursive(graph, node_name, child, depth + 1)
+
+    return graph
 
 def isterminal(char):
     if char.isupper() or char == "e":
@@ -279,3 +351,6 @@ expr = "a+a*a$"
 
 print("\t\t\t\t\t\t\tParsing Expression\n")
 parse(expr, parse_table, terminals, non_terminals)
+ast_root, remaining_input = build_ast(grammar, start, expr)
+
+visualize_ast(ast_root)
