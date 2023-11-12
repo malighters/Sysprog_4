@@ -124,7 +124,6 @@ def first(lhs, grammar, grammar_first):
             if i[k].isupper():
                 if grammar_first[i[k]] == "null":
                     grammar_first = first(i[k], grammar, grammar_first)
-                # print("state ", lhs, "i ", i, "k, ", k, grammar_first[i[k]])
                 for j in grammar_first[i[k]]:
                     grammar_first = insert(grammar_first, lhs, j)
                     check.append(j)
@@ -189,7 +188,6 @@ def show_dict(dictionary):
 
 def get_rule(non_terminal, terminal, grammar, grammar_first):
     for rhs in grammar[non_terminal]:
-        # print(rhs)
         for rule in rhs:
             if rule == terminal:
                 string = non_terminal + "-" + rhs
@@ -339,14 +337,10 @@ for i in grammar:
 
 terminals.append("$")
 
-# print(non_terminals)
-# print(terminals)
-
 print("\n\t\t\t\t\t\t\tParse Table\n")
 parse_table = generate_parse_table(terminals, non_terminals, grammar, grammar_first, grammar_follow)
 display_parse_table(parse_table, terminals, non_terminals)
 
-# expr = input("Enter the expression ending with $ : ")
 expr = "a+a*a$"
 
 print("\t\t\t\t\t\t\tParsing Expression\n")
