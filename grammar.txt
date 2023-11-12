@@ -1,0 +1,8 @@
+S-BA
+A-+BA
+A-e
+B-DC
+C-*DC
+C-e
+D-a
+D-(S)
