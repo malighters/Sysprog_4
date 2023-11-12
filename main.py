@@ -308,12 +308,12 @@ for i in f:
 print("Grammar\n")
 show_dict(grammar)
 
+epsilon_nonterminals = find_epsilon_nonterminals(grammar)
+print("\nEpsilon Non-terminals:", epsilon_nonterminals)
+
 for lhs in grammar:
     if grammar_first[lhs] == "null":
         grammar_first = first(lhs, grammar, grammar_first)
-
-epsilon_nonterminals = find_epsilon_nonterminals(grammar)
-print("\nEpsilon Non-terminals:", epsilon_nonterminals)
 
 print("\nFirst\n")
 show_dict(grammar_first)
