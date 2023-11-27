@@ -1,6 +1,8 @@
 from collections import OrderedDict
 import networkx as nx
 import matplotlib.pyplot as plt
+import os
+
 
 class ASTNode:
     def __init__(self, type, value=None):
@@ -10,6 +12,7 @@ class ASTNode:
 
     def add_child(self, child):
         self.children.append(child)
+
 
 # AST building function
 def build_ast(grammar, symbol, remaining_input):
@@ -41,6 +44,7 @@ def build_ast(grammar, symbol, remaining_input):
     # If no production matches, return the partial AST and the remaining input
     return node, remaining_input
 
+
 # AST visualization function
 def visualize_ast(root):
     graph = nx.DiGraph()
@@ -50,6 +54,7 @@ def visualize_ast(root):
     nx.draw(graph, pos, labels=labels, with_labels=True, node_size=3000, node_color="skyblue")
     plt.title("Abstract Syntax Tree (AST)")
     plt.show()
+
 
 # Recursive AST visualization function
 def visualize_ast_recursive(graph, parent_name, node, depth=1):
@@ -72,6 +77,7 @@ def visualize_ast_recursive(graph, parent_name, node, depth=1):
             visualize_ast_recursive(graph, node_name, child, depth + 1)
 
     return graph
+
 
 def isterminal(char):
     if char.isupper() or char == "e":
@@ -249,6 +255,7 @@ def parse(expr, parse_table, terminals, non_terminals):
     print("-")
 
     matched = "-"
+
     while True:
         action = "-"
 
@@ -303,48 +310,52 @@ for i in f:
     grammar_first[lhs] = "null"
     grammar_follow[lhs] = "null"
 
-print("Grammar\n")
-show_dict(grammar)
+try:
+    print("Grammar\n")
+    show_dict(grammar)
 
-epsilon_nonterminals = find_epsilon_nonterminals(grammar)
-print("\nEpsilon Non-terminals:", epsilon_nonterminals)
+    epsilon_nonterminals = find_epsilon_nonterminals(grammar)
+    print("\nEpsilon Non-terminals:", epsilon_nonterminals)
 
-for lhs in grammar:
-    if grammar_first[lhs] == "null":
-        grammar_first = first(lhs, grammar, grammar_first)
+    for lhs in grammar:
+        if grammar_first[lhs] == "null":
+            grammar_first = first(lhs, grammar, grammar_first)
 
-print("\nFirst\n")
-show_dict(grammar_first)
+    print("\nFirst\n")
+    show_dict(grammar_first)
 
-start = list(grammar.keys())[0]
-for lhs in grammar:
-    if grammar_follow[lhs] == "null":
-        grammar_follow = follow(lhs, grammar, grammar_follow, start)
+    start = list(grammar.keys())[0]
+    for lhs in grammar:
+        if grammar_follow[lhs] == "null":
+            grammar_follow = follow(lhs, grammar, grammar_follow, start)
 
-print("\n")
-print("Follow\n")
-show_dict(grammar_follow)
+    print("\n")
+    print("Follow\n")
+    show_dict(grammar_follow)
 
-non_terminals = list(grammar.keys())
-terminals = []
+    non_terminals = list(grammar.keys())
+    terminals = []
 
-for i in grammar:
-    for rule in grammar[i]:
-        for char in rule:
+    for i in grammar:
+        for rule in grammar[i]:
+            for char in rule:
 
-            if isterminal(char) and char not in terminals:
-                terminals.append(char)
+                if isterminal(char) and char not in terminals:
+                    terminals.append(char)
 
-terminals.append("$")
+    terminals.append("$")
 
-print("\n\t\t\t\t\t\t\tParse Table\n")
-parse_table = generate_parse_table(terminals, non_terminals, grammar, grammar_first, grammar_follow)
-display_parse_table(parse_table, terminals, non_terminals)
+    print("\n\t\t\t\t\t\t\tParse Table\n")
+    parse_table = generate_parse_table(terminals, non_terminals, grammar, grammar_first, grammar_follow)
+    display_parse_table(parse_table, terminals, non_terminals)
 
-expr = "a+a*a$"
+    expr = "a+a*a$"
 
-print("\t\t\t\t\t\t\tParsing Expression\n")
-parse(expr, parse_table, terminals, non_terminals)
-ast_root, remaining_input = build_ast(grammar, start, expr)
+    print("\t\t\t\t\t\t\tParsing Expression\n")
+    parse(expr, parse_table, terminals, non_terminals)
+    ast_root, remaining_input = build_ast(grammar, start, expr)
 
-visualize_ast(ast_root)
+    visualize_ast(ast_root)
+except:
+    os.system('cls')
+    print("Wrong input")
